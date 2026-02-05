@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | USIU Transport</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #002855, #ffd100);
+      min-height: 100vh;
+      color: #002855;
+    }
+
+    header {
+      background: #002855;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    button {
+      background: #ffd100;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #002855;
+    }
+
+    button:hover {
+      background: #ffca00;
+    }
+
+    .container {
+      background: white;
+      margin: 40px auto;
+      border-radius: 10px;
+      width: 95%;
+      max-width: 1400px;
+      padding: 20px 30px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #002855, #003a70);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .stat-card p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filters select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    th {
+      background: #002855;
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    tr:hover {
+      background: #f0f0f0;
+    }
+
+    .status-pending {
+      background: #fbbf24;
+      color: #78350f;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .status-approved {
+      background: #10b981;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .status-rejected {
+      background: #ef4444;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      font-size: 11px;
+      margin: 2px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+    }
+
+    .approve-btn {
+      background: #10b981;
+      color: white;
+    }
+
+    .approve-btn:hover {
+      background: #059669;
+    }
+
+    .reject-btn {
+      background: #ef4444;
+      color: white;
+    }
+
+    .reject-btn:hover {
+      background: #dc2626;
+    }
+
+    .trip-type-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: #e5e7eb;
+      color: #374151;
+      display: inline-block;
+      margin-top: 3px;
+    }
+
+    .group-indicator {
+      color: #6366f1;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      table {
+        font-size: 11px;
+      }
+      
+      th, td {
+        padding: 6px 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Admin Dashboard — USIU Transport</h1>
+  <div>
+    <button id="testDataBtn" style="background: #6366f1;"> Generate Test Data</button>
+    <button id="refreshBtn">🔄 Refresh</button>
+    <button id="exportBtn">📊 Export CSV</button>
+    <button id="logoutBtn">🚪 Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <h2>📋 Bookings Management</h2>
+  <p>Manage all student bookings. You can approve or reject booking requests.</p>
+
+  <!-- Info Box -->
+  <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+    <h4 style="margin: 0 0 10px 0; color: #1e40af;">ℹ️ How Filters Work</h4>
+    <ul style="margin: 5px 0; padding-left: 20px; font-size: 13px; color: #1e40af;">
+      <li><strong>Date Filter:</strong> Shows dates that have bookings. If no dates appear, no bookings exist yet.</li>
+      <li><strong>Bus Filter:</strong> Shows buses that have been booked. If no buses appear, no bookings exist yet.</li>
+      <li><strong>Status Filter:</strong> Filter by Pending, Approved, or Rejected bookings.</li>
+      <li><strong>Trip Type Filter:</strong> Filter by Individual, Class Trip, School Trip, or Group Booking.</li>
+      <li><strong>Note:</strong> Students must make bookings first for filters to populate with data.</li>
+    </ul>
+  </div>
+
+  <!-- Statistics -->
+  <div class="stats">
+    <div class="stat-card">
+      <h3 id="totalBookings">0</h3>
+      <p>Total Bookings</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="pendingBookings">0</h3>
+      <p>Pending Approval</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="approvedBookings">0</h3>
+      <p>Approved</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="rejectedBookings">0</h3>
+      <p>Rejected</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <select id="statusFilter">
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+    </select>
+
+    <select id="dateFilter">
+      <option value="all">All Dates</option>
+    </select>
+
+    <select id="busFilter">
+      <option value="all">All Buses</option>
+    </select>
+
+    <select id="tripTypeFilter">
+      <option value="all">All Trip Types</option>
+      <option value="individual">Individual</option>
+      <option value="class">Class Trip</option>
+      <option value="school">School Trip</option>
+      <option value="group">Group Booking</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Student ID</th>
+        <th>Email</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Direction</th>
+        <th>Route</th>
+        <th>Bus</th>
+        <th>Seat</th>
+        <th>Trip Type</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="bookingsBody">
+      <!-- rows injected here -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const STORAGE_KEY = "usiu_bookings";
+
+  const bookingsBody = document.getElementById("bookingsBody");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const exportBtn = document.getElementById("exportBtn");
+  const statusFilter = document.getElementById("statusFilter");
+  const dateFilter = document.getElementById("dateFilter");
+  const busFilter = document.getElementById("busFilter");
+  const tripTypeFilter = document.getElementById("tripTypeFilter");
+
+  // Check if admin is logged in
+  function checkAdminAuth() {
+    const session = localStorage.getItem("currentUser");
+    if (!session) {
+      alert("Please log in as admin");
+      window.location.href = "login.html";
+      return false;
+    }
+
+    try {
+      const user = JSON.parse(session);
+      if (user.role !== "admin") {
+        alert("Access denied. Admin only.");
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
+    } catch(e) {
+      alert("Invalid session");
+      window.location.href = "login.html";
+      return false;
+    }
+  }
+
+  function getAllBookings() {
+    const bookingsObj = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    const allBookings = [];
+    
+    // Flatten the bookings object into an array
+    for (const key in bookingsObj) {
+      const bookingsArray = bookingsObj[key];
+      bookingsArray.forEach(booking => {
+        allBookings.push({
+          ...booking,
+          bookingKey: key // Store the key for updating
+        });
+      });
+    }
+    
+    return allBookings;
+  }
+
+  function updateStatistics(bookings) {
+    const total = bookings.length;
+    const pending = bookings.filter(b => !b.status || b.status === 'pending').length;
+    const approved = bookings.filter(b => b.status === 'approved').length;
+    const rejected = bookings.filter(b => b.status === 'rejected').length;
+
+    document.getElementById('totalBookings').textContent = total;
+    document.getElementById('pendingBookings').textContent = pending;
+    document.getElementById('approvedBookings').textContent = approved;
+    document.getElementById('rejectedBookings').textContent = rejected;
+  }
+
+  function populateFilters(bookings) {
+    // Populate date filter
+    const dates = [...new Set(bookings.map(b => b.date).filter(Boolean))].sort();
+    dateFilter.innerHTML = '<option value="all">All Dates</option>';
+    
+    if (dates.length > 0) {
+      dates.forEach(date => {
+        const option = document.createElement('option');
+        option.value = date;
+        option.textContent = date;
+        dateFilter.appendChild(option);
+      });
+      console.log(`Populated ${dates.length} dates:`, dates);
+    } else {
+      console.log('No dates found in bookings');
+    }
+
+    // Populate bus filter
+    const buses = [...new Set(bookings.map(b => b.bus).filter(Boolean))].sort();
+    busFilter.innerHTML = '<option value="all">All Buses</option>';
+    
+    if (buses.length > 0) {
+      buses.forEach(bus => {
+        const option = document.createElement('option');
+        option.value = bus;
+        option.textContent = bus;
+        busFilter.appendChild(option);
+      });
+      console.log(`Populated ${buses.length} buses:`, buses);
+    } else {
+      console.log('No buses found in bookings');
+    }
+  }
+
+  function filterBookings(bookings) {
+    let filtered = [...bookings];
+
+    // Status filter
+    const statusVal = statusFilter.value;
+    if (statusVal !== 'all') {
+      filtered = filtered.filter(b => {
+        const bookingStatus = b.status || 'pending';
+        return bookingStatus === statusVal;
+      });
+    }
+
+    // Date filter
+    const dateVal = dateFilter.value;
+    if (dateVal !== 'all') {
+      filtered = filtered.filter(b => b.date === dateVal);
+    }
+
+    // Bus filter
+    const busVal = busFilter.value;
+    if (busVal !== 'all') {
+      filtered = filtered.filter(b => b.bus === busVal);
+    }
+
+    // Trip type filter
+    const tripTypeVal = tripTypeFilter.value;
+    if (tripTypeVal !== 'all') {
+      filtered = filtered.filter(b => b.tripType === tripTypeVal);
+    }
+
+    return filtered;
+  }
+
+  function loadBookings() {
+    const allBookings = getAllBookings();
+    
+    // Always populate filters first, even if no bookings
+    populateFilters(allBookings);
+    
+    if (allBookings.length === 0) {
+      bookingsBody.innerHTML = `<tr><td colspan="11">No bookings found</td></tr>`;
+      updateStatistics([]);
+      return;
+    }
+
+    // Update statistics
+    updateStatistics(allBookings);
+
+    // Apply filters
+    const filtered = filterBookings(allBookings);
+
+    // Clear table
+    bookingsBody.innerHTML = "";
+
+    if (filtered.length === 0) {
+      bookingsBody.innerHTML = `<tr><td colspan="11">No bookings match the selected filters</td></tr>`;
+      return;
+    }
+
+    // Sort by timestamp (newest first)
+    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    filtered.forEach(b => {
+      const status = b.status || 'pending';
+      const statusClass = status === 'approved' ? 'status-approved' : 
+                          status === 'rejected' ? 'status-rejected' : 'status-pending';
+      const statusText = status === 'approved' ? '✓ Approved' : 
+                         status === 'rejected' ? '✗ Rejected' : '⏳ Pending';
+
+      const tripTypeText = b.tripTypeText || 'N/A';
+      const groupIndicator = b.groupBookingId ? ' <span class="group-indicator" title="Part of group booking">👥</span>' : '';
+
+      const row = `
+        <tr>
+          <td>${b.studentId || "N/A"}</td>
+          <td style="font-size: 11px;">${b.email || "N/A"}</td>
+          <td>${b.date || "N/A"}</td>
+          <td>${b.time || "N/A"}</td>
+          <td>${formatDirection(b)}</td>
+          <td style="font-size: 11px;">${b.route || "N/A"}</td>
+          <td>${b.bus || "N/A"}</td>
+          <td><strong>${b.seat || "N/A"}</strong></td>
+          <td>
+            <span class="trip-type-badge">${tripTypeText}</span>
+            ${groupIndicator}
+          </td>
+          <td><span class="${statusClass}">${statusText}</span></td>
+          <td>
+            ${status === 'pending' ? `
+              <button class="action-btn approve-btn" onclick="approveBooking('${b.bookingKey}', '${b.seat}')">✓ Approve</button>
+              <button class="action-btn reject-btn" onclick="rejectBooking('${b.bookingKey}', '${b.seat}')">✗ Reject</button>
+            ` : status === 'approved' ? `
+              <button class="action-btn reject-btn" onclick="rejectBooking('${b.bookingKey}', '${b.seat}')">✗ Reject</button>
+            ` : `
+              <button class="action-btn approve-btn" onclick="approveBooking('${b.bookingKey}', '${b.seat}')">✓ Approve</button>
+            `}
+          </td>
+        </tr>
+      `;
+      bookingsBody.insertAdjacentHTML("beforeend", row);
+    });
+  }
+
+  function formatDirection(booking) {
+    if (booking.directionText) return booking.directionText;
+    if (booking.direction === "to") return "To School";
+    if (booking.direction === "from") return "From School";
+    if (booking.direction === "custom") {
+      return booking.customDirection || "Custom";
+    }
+    return booking.direction || "N/A";
+  }
+
+  function approveBooking(bookingKey, seat) {
+    if (!confirm(`Approve booking for seat ${seat}?`)) return;
+
+    const bookingsObj = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    
+    if (bookingsObj[bookingKey]) {
+      const bookingIndex = bookingsObj[bookingKey].findIndex(b => b.seat === seat);
+      if (bookingIndex !== -1) {
+        bookingsObj[bookingKey][bookingIndex].status = 'approved';
+        bookingsObj[bookingKey][bookingIndex].approvedBy = 'admin';
+        bookingsObj[bookingKey][bookingIndex].approvedAt = new Date().toISOString();
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingsObj));
+        
+        alert(`✅ Booking for seat ${seat} has been approved.\n\nNote: In production, an email notification will be sent to the student.`);
+        loadBookings();
+      }
+    }
+  }
+
+  function rejectBooking(bookingKey, seat) {
+    const reason = prompt(`Reject booking for seat ${seat}?\n\nPlease enter the reason for rejection:`);
+    if (!reason) return;
+
+    const bookingsObj = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    
+    if (bookingsObj[bookingKey]) {
+      const bookingIndex = bookingsObj[bookingKey].findIndex(b => b.seat === seat);
+      if (bookingIndex !== -1) {
+        bookingsObj[bookingKey][bookingIndex].status = 'rejected';
+        bookingsObj[bookingKey][bookingIndex].rejectedBy = 'admin';
+        bookingsObj[bookingKey][bookingIndex].rejectedAt = new Date().toISOString();
+        bookingsObj[bookingKey][bookingIndex].rejectionReason = reason;
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingsObj));
+        
+        alert(`❌ Booking for seat ${seat} has been rejected.\n\nReason: ${reason}\n\nNote: In production, an email notification will be sent to the student.`);
+        loadBookings();
+      }
+    }
+  }
+
+  function exportToCSV() {
+    const allBookings = getAllBookings();
+    
+    if (allBookings.length === 0) {
+      alert('No bookings to export');
+      return;
+    }
+
+    const filtered = filterBookings(allBookings);
+
+    const header = 'Student ID,Email,Date,Time,Direction,Custom Direction,Route,Bus,Seat,Trip Type,Status,Approved/Rejected By,Timestamp,Rejection Reason';
+    const lines = filtered.map(b => {
+      const status = b.status || 'pending';
+      const by = status === 'approved' ? (b.approvedBy || 'N/A') : status === 'rejected' ? (b.rejectedBy || 'N/A') : 'N/A';
+      const reason = b.rejectionReason || 'N/A';
+      const direction = formatDirection(b);
+      
+      return `${b.studentId || 'N/A'},${b.email || 'N/A'},${b.date || 'N/A'},${b.time || 'N/A'},${direction},${b.customDirection || 'N/A'},${b.route || 'N/A'},${b.bus || 'N/A'},${b.seat || 'N/A'},${b.tripTypeText || 'N/A'},${status},${by},${b.timestamp || 'N/A'},${reason}`;
+    });
+
+    const csv = [header, ...lines].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `admin_bookings_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // Event listeners
+  refreshBtn.addEventListener("click", () => {
+    loadBookings();
+    alert("Booking data refreshed");
+  });
+
+  exportBtn.addEventListener("click", exportToCSV);
+
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("currentUser");
+    window.location.href = "login.html";
+  });
+
+  // Test data generator
+  document.getElementById("testDataBtn").addEventListener("click", () => {
+    if (!confirm("Generate test bookings? This will add sample data to help you test the system.")) return;
+
+    const testBookings = {
+      "Karen__bus1__to__7:00 AM__2025-02-10": [
+        {
+          studentId: "USIU12345",
+          email: "john.doe@usiu.ac.ke",
+          route: "Karen",
+          direction: "to",
+          directionText: "To School",
+          time: "7:00 AM",
+          date: "2025-02-10",
+          seat: "A1",
+          bus: "Bus 1 (56 seats)",
+          tripType: "individual",
+          tripTypeText: "Individual Person",
+          confirmed: false,
+          status: "pending",
+          timestamp: new Date().toISOString()
+        },
+        {
+          studentId: "USIU12346",
+          email: "jane.smith@usiu.ac.ke",
+          route: "Karen",
+          direction: "to",
+          directionText: "To School",
+          time: "7:00 AM",
+          date: "2025-02-10",
+          seat: "A2",
+          bus: "Bus 1 (56 seats)",
+          tripType: "individual",
+          tripTypeText: "Individual Person",
+          confirmed: false,
+          status: "approved",
+          timestamp: new Date().toISOString()
+        }
+      ],
+      "Langata__bus3__from__4:00 PM__2025-02-12": [
+        {
+          studentId: "USIU12347",
+          email: "mark.wilson@usiu.ac.ke",
+          route: "Langata",
+          direction: "from",
+          directionText: "From School",
+          time: "4:00 PM",
+          date: "2025-02-12",
+          seat: "B1",
+          bus: "Bus 3 (33 seats)",
+          tripType: "class",
+          tripTypeText: "Class Trip",
+          confirmed: false,
+          status: "pending",
+          timestamp: new Date().toISOString(),
+          groupBookingId: "GROUP_123456"
+        },
+        {
+          studentId: "USIU12347",
+          email: "mark.wilson@usiu.ac.ke",
+          route: "Langata",
+          direction: "from",
+          directionText: "From School",
+          time: "4:00 PM",
+          date: "2025-02-12",
+          seat: "B2",
+          bus: "Bus 3 (33 seats)",
+          tripType: "class",
+          tripTypeText: "Class Trip",
+          confirmed: false,
+          status: "pending",
+          timestamp: new Date().toISOString(),
+          groupBookingId: "GROUP_123456"
+        }
+      ],
+      "CBD__bus2__to__8:00 AM__2025-02-15": [
+        {
+          studentId: "USIU12348",
+          email: "alice.johnson@usiu.ac.ke",
+          route: "CBD",
+          direction: "to",
+          directionText: "To School",
+          time: "8:00 AM",
+          date: "2025-02-15",
+          seat: "C1",
+          bus: "Bus 2 (56 seats)",
+          tripType: "individual",
+          tripTypeText: "Individual Person",
+          confirmed: false,
+          status: "rejected",
+          rejectedBy: "admin",
+          rejectionReason: "Bus at full capacity",
+          timestamp: new Date().toISOString()
+        }
+      ]
+    };
+
+    // Merge with existing bookings
+    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    const merged = { ...existing, ...testBookings };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+
+    alert("✅ Test data generated!\n\nAdded sample bookings for:\n- Bus 1 (Karen, Feb 10) - 2 bookings\n- Bus 3 (Langata, Feb 12) - 2 group bookings\n- Bus 2 (CBD, Feb 15) - 1 rejected booking");
+    loadBookings();
+  });
+
+  statusFilter.addEventListener('change', loadBookings);
+  dateFilter.addEventListener('change', loadBookings);
+  busFilter.addEventListener('change', loadBookings);
+  tripTypeFilter.addEventListener('change', loadBookings);
+
+  // Make functions globally accessible
+  window.approveBooking = approveBooking;
+  window.rejectBooking = rejectBooking;
+
+  // Initialize
+  if (checkAdminAuth()) {
+    loadBookings();
+  }
+</script>
+
+</body>
+</html>

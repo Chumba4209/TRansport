@@ -1,0 +1,697 @@
+import React, { useState, useEffect } from 'react';
+import { Bus, Calendar, Clock, MapPin, User, LogOut, Mail, CheckCircle, XCircle } from 'lucide-react';
+
+const TransportBookingSystem = () => {
+  const [currentPage, setCurrentPage] = useState('landing');
+  const [userType, setUserType] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [bookings, setBookings] = useState({});
+  const [notification, setNotification] = useState(null);
+
+  const routes = [
+    { id: 'thika', name: 'Thika', departureTime: '07:00 AM', seats: 40 },
+    { id: 'karen', name: 'Karen', departureTime: '07:30 AM', seats: 40 },
+    { id: 'langata', name: 'Langata', departureTime: '07:15 AM', seats: 40 },
+    { id: 'parklands', name: 'Parklands', departureTime: '07:45 AM', seats: 40 },
+    { id: 'pangani', name: 'Pangani', departureTime: '08:00 AM', seats: 40 },
+    { id: 'cbd', name: 'CBD', departureTime: '07:00 AM', seats: 40 }
+  ];
+
+  const times = ['07:00 AM', '09:00 AM', '12:00 PM', '03:00 PM', '05:00 PM'];
+
+  // Initialize bookings from storage
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const result = await window.storage.get('transport-bookings');
+        if (result) {
+          setBookings(JSON.parse(result.value));
+        }
+      } catch (error) {
+        console.log('No existing bookings found');
+      }
+    };
+    loadBookings();
+  }, []);
+
+  const saveBookings = async (newBookings) => {
+    try {
+      await window.storage.set('transport-bookings', JSON.stringify(newBookings));
+      setBookings(newBookings);
+    } catch (error) {
+      console.error('Failed to save bookings:', error);
+    }
+  };
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleLogin = (email, password, isAdmin = false) => {
+    if (isAdmin) {
+      if (email === 'admin@usiu.ac.ke' && password === 'admin123') {
+        setUserType('admin');
+        setCurrentUser({ email, name: 'Admin' });
+        setCurrentPage('admin');
+        showNotification('Admin login successful!');
+        return true;
+      }
+    } else {
+      if (email.endsWith('@usiu.ac.ke') && password) {
+        setUserType('student');
+        setCurrentUser({ email, name: email.split('@')[0] });
+        setCurrentPage('booking');
+        showNotification('Login successful!');
+        return true;
+      }
+    }
+    showNotification('Invalid credentials', 'error');
+    return false;
+  };
+
+  const handleLogout = () => {
+    setUserType(null);
+    setCurrentUser(null);
+    setCurrentPage('landing');
+    setSelectedRoute(null);
+    showNotification('Logged out successfully');
+  };
+
+  const bookSeat = async (routeId, date, time, seatNumber) => {
+    const bookingKey = `${routeId}-${date}-${time}`;
+    const newBookings = { ...bookings };
+    
+    if (!newBookings[bookingKey]) {
+      newBookings[bookingKey] = {};
+    }
+    
+    if (newBookings[bookingKey][seatNumber]) {
+      showNotification('Seat already booked!', 'error');
+      return;
+    }
+    
+    newBookings[bookingKey][seatNumber] = {
+      student: currentUser.email,
+      name: currentUser.name,
+      bookedAt: new Date().toISOString(),
+      confirmed: false
+    };
+    
+    await saveBookings(newBookings);
+    showNotification(`Seat ${seatNumber} booked successfully! Awaiting admin confirmation.`);
+  };
+
+  const confirmBooking = async (routeId, date, time, seatNumber) => {
+    const bookingKey = `${routeId}-${date}-${time}`;
+    const newBookings = { ...bookings };
+    
+    if (newBookings[bookingKey] && newBookings[bookingKey][seatNumber]) {
+      newBookings[bookingKey][seatNumber].confirmed = true;
+      await saveBookings(newBookings);
+      
+      // Simulate sending email
+      const studentEmail = newBookings[bookingKey][seatNumber].student;
+      showNotification(`Booking confirmed! Email sent to ${studentEmail}`);
+    }
+  };
+
+  const cancelBooking = async (routeId, date, time, seatNumber) => {
+    const bookingKey = `${routeId}-${date}-${time}`;
+    const newBookings = { ...bookings };
+    
+    if (newBookings[bookingKey] && newBookings[bookingKey][seatNumber]) {
+      delete newBookings[bookingKey][seatNumber];
+      await saveBookings(newBookings);
+      showNotification('Booking cancelled successfully');
+    }
+  };
+
+  // Landing Page
+  const LandingPage = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-yellow-500">
+      <nav className="bg-blue-900 text-white p-4 shadow-lg">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <Bus className="w-8 h-8 text-yellow-400" />
+            <h1 className="text-2xl font-bold">USIU-Africa Transport</h1>
+          </div>
+          <div className="space-x-6">
+            <button onClick={() => setCurrentPage('about')} className="hover:text-yellow-400 transition">About</button>
+            <button onClick={() => setCurrentPage('history')} className="hover:text-yellow-400 transition">History</button>
+            <button onClick={() => setCurrentPage('login')} className="bg-yellow-500 text-blue-900 px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition">Login</button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 py-20 text-center text-white">
+        <h1 className="text-6xl font-bold mb-6">Welcome to USIU-Africa</h1>
+        <h2 className="text-4xl mb-8">Online Transport Booking System</h2>
+        <p className="text-xl mb-12 max-w-3xl mx-auto">
+          Book your shuttle easily and efficiently. Travel safely to and from campus with our convenient transport service.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg p-6 rounded-xl">
+            <MapPin className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+            <h3 className="text-xl font-bold mb-2">Multiple Routes</h3>
+            <p>Thika, Karen, Langata, Parklands, Pangani & CBD</p>
+          </div>
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg p-6 rounded-xl">
+            <Clock className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+            <h3 className="text-xl font-bold mb-2">Flexible Times</h3>
+            <p>Multiple departure times throughout the day</p>
+          </div>
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg p-6 rounded-xl">
+            <Calendar className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+            <h3 className="text-xl font-bold mb-2">Easy Booking</h3>
+            <p>Book your seat in advance with real-time updates</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // About Page
+  const AboutPage = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-yellow-500">
+      <nav className="bg-blue-900 text-white p-4 shadow-lg">
+        <div className="container mx-auto flex justify-between items-center">
+          <button onClick={() => setCurrentPage('landing')} className="flex items-center space-x-2">
+            <Bus className="w-8 h-8 text-yellow-400" />
+            <h1 className="text-2xl font-bold">USIU-Africa Transport</h1>
+          </button>
+          <button onClick={() => setCurrentPage('landing')} className="hover:text-yellow-400">← Back</button>
+        </div>
+      </nav>
+      <div className="container mx-auto px-4 py-12">
+        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-blue-900 mb-6">About Our Transport System</h2>
+          <p className="text-gray-700 text-lg mb-4">
+            The USIU-Africa Online Transport Booking System is designed to provide students and staff with a convenient, 
+            efficient, and reliable way to book shuttle services to and from campus.
+          </p>
+          <p className="text-gray-700 text-lg mb-4">
+            Our system addresses the challenges of manual booking processes by offering real-time seat availability, 
+            automated scheduling, and instant email confirmations.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div className="border-l-4 border-blue-900 pl-4">
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Our Mission</h3>
+              <p className="text-gray-700">To provide safe, reliable, and accessible transportation for the USIU community.</p>
+            </div>
+            <div className="border-l-4 border-yellow-500 pl-4">
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Our Vision</h3>
+              <p className="text-gray-700">To be the leading university transport service in Kenya, setting standards for efficiency and student satisfaction.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // History Page
+  const HistoryPage = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-yellow-500">
+      <nav className="bg-blue-900 text-white p-4 shadow-lg">
+        <div className="container mx-auto flex justify-between items-center">
+          <button onClick={() => setCurrentPage('landing')} className="flex items-center space-x-2">
+            <Bus className="w-8 h-8 text-yellow-400" />
+            <h1 className="text-2xl font-bold">USIU-Africa Transport</h1>
+          </button>
+          <button onClick={() => setCurrentPage('landing')} className="hover:text-yellow-400">← Back</button>
+        </div>
+      </nav>
+      <div className="container mx-auto px-4 py-12">
+        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-blue-900 mb-6">History of Transport Services at USIU</h2>
+          <div className="space-y-6">
+            <div className="border-l-4 border-blue-900 pl-6 py-2">
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Early Years (2000-2010)</h3>
+              <p className="text-gray-700">
+                USIU-Africa transport services began with a small fleet of buses serving only CBD and Thika routes, 
+                operating on fixed schedules with manual paper-based booking.
+              </p>
+            </div>
+            <div className="border-l-4 border-yellow-500 pl-6 py-2">
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Expansion Period (2010-2020)</h3>
+              <p className="text-gray-700">
+                The service expanded to include Karen, Langata, Parklands, and Pangani routes as student enrollment grew. 
+                This period saw challenges with manual booking systems and scheduling conflicts.
+              </p>
+            </div>
+            <div className="border-l-4 border-blue-900 pl-6 py-2">
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Digital Transformation (2020-Present)</h3>
+              <p className="text-gray-700">
+                Recognizing the need for modernization, USIU-Africa initiated the development of an online booking system 
+                to streamline operations, reduce congestion, and improve student experience.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Login Page
+  const LoginPage = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isAdminLogin, setIsAdminLogin] = useState(false);
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      handleLogin(email, password, isAdminLogin);
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 to-yellow-500 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <Bus className="w-16 h-16 mx-auto mb-4 text-blue-900" />
+            <h2 className="text-3xl font-bold text-blue-900">
+              {isAdminLogin ? 'Admin Login' : 'Student Login'}
+            </h2>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                placeholder={isAdminLogin ? "admin@usiu.ac.ke" : "yourname@usiu.ac.ke"}
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition"
+            >
+              Login
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setIsAdminLogin(!isAdminLogin)}
+              className="text-blue-900 hover:text-yellow-600 font-semibold"
+            >
+              {isAdminLogin ? 'Student Login' : 'Admin Login'}
+            </button>
+          </div>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setCurrentPage('landing')}
+              className="text-gray-600 hover:text-blue-900"
+            >
+              ← Back to Home
+            </button>
+          </div>
+
+          {isAdminLogin && (
+            <div className="mt-4 p-3 bg-yellow-100 rounded text-sm text-gray-700">
+              <strong>Demo Admin:</strong> admin@usiu.ac.ke / admin123
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Student Booking Page
+  const BookingPage = () => {
+    const SeatGrid = ({ routeId, date, time }) => {
+      const bookingKey = `${routeId}-${date}-${time}`;
+      const routeBookings = bookings[bookingKey] || {};
+      const totalSeats = 40;
+      const seatsPerRow = 4;
+      const rows = Math.ceil(totalSeats / seatsPerRow);
+
+      return (
+        <div className="space-y-2">
+          <div className="flex justify-center space-x-8 mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-yellow-400 rounded"></div>
+              <span className="text-sm">Available</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-blue-600 rounded"></div>
+              <span className="text-sm">Booked</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            {Array.from({ length: rows }).map((_, rowIndex) => (
+              <div key={rowIndex} className="flex justify-center space-x-2">
+                {Array.from({ length: seatsPerRow }).map((_, seatIndex) => {
+                  const seatNumber = rowIndex * seatsPerRow + seatIndex + 1;
+                  if (seatNumber > totalSeats) return null;
+                  
+                  const isBooked = routeBookings[seatNumber];
+                  const isMyBooking = isBooked && routeBookings[seatNumber].student === currentUser.email;
+                  
+                  return (
+                    <button
+                      key={seatNumber}
+                      onClick={() => !isBooked && bookSeat(routeId, date, time, seatNumber)}
+                      disabled={isBooked && !isMyBooking}
+                      className={`w-12 h-12 rounded font-semibold transition ${
+                        isBooked
+                          ? 'bg-blue-600 text-white cursor-not-allowed'
+                          : 'bg-yellow-400 text-blue-900 hover:bg-yellow-500'
+                      }`}
+                    >
+                      {seatNumber}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 to-yellow-500">
+        <nav className="bg-blue-900 text-white p-4 shadow-lg">
+          <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <Bus className="w-8 h-8 text-yellow-400" />
+              <h1 className="text-2xl font-bold">Book Your Transport</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <User className="w-5 h-5" />
+                <span>{currentUser.name}</span>
+              </div>
+              <button onClick={handleLogout} className="flex items-center space-x-2 hover:text-yellow-400">
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <div className="container mx-auto px-4 py-8">
+          {!selectedRoute ? (
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-6">Select Your Route</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {routes.map((route) => (
+                  <button
+                    key={route.id}
+                    onClick={() => setSelectedRoute(route)}
+                    className="bg-white rounded-xl p-6 shadow-lg hover:shadow-2xl transition transform hover:scale-105"
+                  >
+                    <MapPin className="w-12 h-12 text-blue-900 mb-4" />
+                    <h3 className="text-2xl font-bold text-blue-900 mb-2">{route.name}</h3>
+                    <p className="text-gray-600 mb-2">Departure: {route.departureTime}</p>
+                    <p className="text-gray-600">{route.seats} seats available</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-2xl p-8">
+              <button
+                onClick={() => setSelectedRoute(null)}
+                className="text-blue-900 hover:text-yellow-600 mb-6 flex items-center space-x-2"
+              >
+                <span>← Back to Routes</span>
+              </button>
+
+              <h2 className="text-3xl font-bold text-blue-900 mb-6">{selectedRoute.name} Route</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Select Date</label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Select Time</label>
+                  <select
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-900"
+                    required
+                  >
+                    <option value="">Choose time</option>
+                    {times.map((time) => (
+                      <option key={time} value={time}>{time}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {selectedDate && selectedTime && (
+                <div>
+                  <h3 className="text-xl font-bold text-blue-900 mb-4 text-center">
+                    Select Your Seat
+                  </h3>
+                  <SeatGrid 
+                    routeId={selectedRoute.id} 
+                    date={selectedDate} 
+                    time={selectedTime} 
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Admin Page
+  const AdminPage = () => {
+    const [viewMode, setViewMode] = useState('overview');
+
+    const getAllBookings = () => {
+      const allBookings = [];
+      Object.keys(bookings).forEach((key) => {
+        const [routeId, date, time] = key.split('-');
+        const route = routes.find(r => r.id === routeId);
+        
+        Object.keys(bookings[key]).forEach((seatNumber) => {
+          allBookings.push({
+            key,
+            routeId,
+            routeName: route?.name || routeId,
+            date,
+            time,
+            seatNumber,
+            ...bookings[key][seatNumber]
+          });
+        });
+      });
+      return allBookings.sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt));
+    };
+
+    const allBookings = getAllBookings();
+    const pendingBookings = allBookings.filter(b => !b.confirmed);
+    const confirmedBookings = allBookings.filter(b => b.confirmed);
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 to-yellow-500">
+        <nav className="bg-blue-900 text-white p-4 shadow-lg">
+          <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <Bus className="w-8 h-8 text-yellow-400" />
+              <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <User className="w-5 h-5" />
+                <span>Admin</span>
+              </div>
+              <button onClick={handleLogout} className="flex items-center space-x-2 hover:text-yellow-400">
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h3 className="text-gray-600 mb-2">Total Bookings</h3>
+              <p className="text-4xl font-bold text-blue-900">{allBookings.length}</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h3 className="text-gray-600 mb-2">Pending Confirmation</h3>
+              <p className="text-4xl font-bold text-yellow-600">{pendingBookings.length}</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h3 className="text-gray-600 mb-2">Confirmed</h3>
+              <p className="text-4xl font-bold text-green-600">{confirmedBookings.length}</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-2xl p-6">
+            <div className="flex space-x-4 mb-6 border-b">
+              <button
+                onClick={() => setViewMode('overview')}
+                className={`px-4 py-2 font-semibold ${
+                  viewMode === 'overview'
+                    ? 'text-blue-900 border-b-2 border-blue-900'
+                    : 'text-gray-600'
+                }`}
+              >
+                All Bookings
+              </button>
+              <button
+                onClick={() => setViewMode('pending')}
+                className={`px-4 py-2 font-semibold ${
+                  viewMode === 'pending'
+                    ? 'text-blue-900 border-b-2 border-blue-900'
+                    : 'text-gray-600'
+                }`}
+              >
+                Pending ({pendingBookings.length})
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-blue-900 text-white">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Student</th>
+                    <th className="px-4 py-3 text-left">Route</th>
+                    <th className="px-4 py-3 text-left">Date</th>
+                    <th className="px-4 py-3 text-left">Time</th>
+                    <th className="px-4 py-3 text-left">Seat</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(viewMode === 'pending' ? pendingBookings : allBookings).map((booking, index) => (
+                    <tr key={index} className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <div>
+                          <div className="font-semibold">{booking.name}</div>
+                          <div className="text-sm text-gray-600">{booking.student}</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">{booking.routeName}</td>
+                      <td className="px-4 py-3">{booking.date}</td>
+                      <td className="px-4 py-3">{booking.time}</td>
+                      <td className="px-4 py-3">
+                        <span className="bg-blue-900 text-white px-3 py-1 rounded-full font-semibold">
+                          {booking.seatNumber}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {booking.confirmed ? (
+                          <span className="flex items-center text-green-600">
+                            <CheckCircle className="w-5 h-5 mr-1" />
+                            Confirmed
+                          </span>
+                        ) : (
+                          <span className="flex items-center text-yellow-600">
+                            <Clock className="w-5 h-5 mr-1" />
+                            Pending
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex space-x-2">
+                          {!booking.confirmed && (
+                            <button
+                              onClick={() => confirmBooking(booking.routeId, booking.date, booking.time, booking.seatNumber)}
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition flex items-center space-x-1"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Confirm</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => cancelBooking(booking.routeId, booking.date, booking.time, booking.seatNumber)}
+                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition flex items-center space-x-1"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            <span>Cancel</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {(viewMode === 'pending' ? pendingBookings : allBookings).length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  <Bus className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>No bookings to display</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Notification Component
+  const Notification = () => {
+    if (!notification) return null;
+
+    return (
+      <div className={`fixed top-4 right-4 z-50 ${
+        notification.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+      } text-white px-6 py-4 rounded-lg shadow-2xl flex items-center space-x-3 animate-fade-in`}>
+        {notification.type === 'success' ? (
+          <CheckCircle className="w-6 h-6" />
+        ) : (
+          <XCircle className="w-6 h-6" />
+        )}
+        <span className="font-semibold">{notification.message}</span>
+      </div>
+    );
+  };
+
+  // Main Render
+  return (
+    <div>
+      {notification && <Notification />}
+      
+      {currentPage === 'landing' && <LandingPage />}
+      {currentPage === 'about' && <AboutPage />}
+      {currentPage === 'history' && <HistoryPage />}
+      {currentPage === 'login' && <LoginPage />}
+      {currentPage === 'booking' && userType === 'student' && <BookingPage />}
+      {currentPage === 'admin' && userType === 'admin' && <AdminPage />}
+    </div>
+  );
+};
+
+export default TransportBookingSystem;
