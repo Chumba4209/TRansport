@@ -6,77 +6,87 @@
   <title>Admin Dashboard | USIU Transport</title>
 
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom right, #002855, #ffd100);
-      min-height: 100vh;
-      color: #002855;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    header {
-      background: #002855;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .header {
+      background: linear-gradient(to right, #002855, #ffd100);
       color: white;
-      padding: 15px 30px;
+      padding: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 22px;
+    .header h1 {
+      font-size: 24px;
     }
 
-    button {
-      background: #ffd100;
+    .logout-btn {
+      background: white;
+      color: #002855;
       border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
+      padding: 10px 20px;
+      border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
-      color: #002855;
     }
 
-    button:hover {
-      background: #ffca00;
+    .logout-btn:hover {
+      background: #ffd100;
     }
 
     .container {
-      background: white;
-      margin: 40px auto;
-      border-radius: 10px;
-      width: 95%;
-      max-width: 1400px;
-      padding: 20px 30px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
     }
 
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
+      gap: 20px;
       margin-bottom: 30px;
     }
 
     .stat-card {
-      background: linear-gradient(135deg, #002855, #003a70);
-      color: white;
+      background: white;
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       text-align: center;
     }
 
     .stat-card h3 {
-      margin: 0;
-      font-size: 32px;
-      font-weight: bold;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
     }
 
-    .stat-card p {
-      margin: 5px 0 0;
-      font-size: 14px;
-      opacity: 0.9;
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #002855;
+    }
+
+    .bookings-section {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .bookings-section h2 {
+      color: #002855;
+      margin-bottom: 20px;
     }
 
     .filters {
@@ -87,639 +97,428 @@
     }
 
     .filters select {
-      padding: 8px 12px;
-      border-radius: 6px;
+      padding: 10px;
       border: 1px solid #ccc;
+      border-radius: 5px;
       font-size: 14px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
-      font-size: 13px;
+    }
+
+    thead {
+      background: #002855;
+      color: white;
     }
 
     th, td {
-      border: 1px solid #ccc;
-      padding: 10px 8px;
-      text-align: center;
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
     }
 
-    th {
-      background: #002855;
-      color: white;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-    }
-
-    tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-
-    tr:hover {
-      background: #f0f0f0;
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
     }
 
     .status-pending {
-      background: #fbbf24;
-      color: #78350f;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
+      background: #fff3cd;
+      color: #856404;
     }
 
     .status-approved {
-      background: #10b981;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
+      background: #d4edda;
+      color: #155724;
     }
 
     .status-rejected {
-      background: #ef4444;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
+      background: #f8d7da;
+      color: #721c24;
     }
 
     .action-btn {
-      padding: 5px 10px;
-      font-size: 11px;
-      margin: 2px;
-      border-radius: 4px;
-      cursor: pointer;
+      padding: 6px 12px;
       border: none;
-      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 5px;
     }
 
     .approve-btn {
-      background: #10b981;
+      background: #28a745;
+      color: white;
+    }
+
+    .reject-btn {
+      background: #dc3545;
       color: white;
     }
 
     .approve-btn:hover {
-      background: #059669;
-    }
-
-    .reject-btn {
-      background: #ef4444;
-      color: white;
+      background: #218838;
     }
 
     .reject-btn:hover {
-      background: #dc2626;
+      background: #c82333;
     }
 
-    .trip-type-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: #e5e7eb;
-      color: #374151;
-      display: inline-block;
-      margin-top: 3px;
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
     }
 
-    .group-indicator {
-      color: #6366f1;
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 15px;
+      color: #002855;
+    }
+
+    .modal-content textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      min-height: 100px;
+      margin-bottom: 15px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
       font-weight: bold;
     }
 
-    @media (max-width: 768px) {
-      table {
-        font-size: 11px;
-      }
-      
-      th, td {
-        padding: 6px 4px;
-      }
+    .confirm-reject {
+      background: #dc3545;
+      color: white;
+    }
+
+    .cancel-btn {
+      background: #6c757d;
+      color: white;
     }
   </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Admin Dashboard — USIU Transport</h1>
-  <div>
-    <button id="testDataBtn" style="background: #6366f1;"> Generate Test Data</button>
-    <button id="refreshBtn">🔄 Refresh</button>
-    <button id="exportBtn">📊 Export CSV</button>
-    <button id="logoutBtn">🚪 Logout</button>
-  </div>
-</header>
+<div class="header">
+  <h1>Admin Dashboard</h1>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
 
 <div class="container">
-  <h2>📋 Bookings Management</h2>
-  <p>Manage all student bookings. You can approve or reject booking requests.</p>
-
-  <!-- Info Box -->
-  <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
-    <h4 style="margin: 0 0 10px 0; color: #1e40af;">ℹ️ How Filters Work</h4>
-    <ul style="margin: 5px 0; padding-left: 20px; font-size: 13px; color: #1e40af;">
-      <li><strong>Date Filter:</strong> Shows dates that have bookings. If no dates appear, no bookings exist yet.</li>
-      <li><strong>Bus Filter:</strong> Shows buses that have been booked. If no buses appear, no bookings exist yet.</li>
-      <li><strong>Status Filter:</strong> Filter by Pending, Approved, or Rejected bookings.</li>
-      <li><strong>Trip Type Filter:</strong> Filter by Individual, Class Trip, School Trip, or Group Booking.</li>
-      <li><strong>Note:</strong> Students must make bookings first for filters to populate with data.</li>
-    </ul>
-  </div>
-
-  <!-- Statistics -->
+  <!-- Statistics Cards -->
   <div class="stats">
     <div class="stat-card">
-      <h3 id="totalBookings">0</h3>
-      <p>Total Bookings</p>
+      <h3>Total Bookings</h3>
+      <div class="number" id="totalBookings">-</div>
     </div>
     <div class="stat-card">
-      <h3 id="pendingBookings">0</h3>
-      <p>Pending Approval</p>
+      <h3>Pending</h3>
+      <div class="number" id="pendingBookings">-</div>
     </div>
     <div class="stat-card">
-      <h3 id="approvedBookings">0</h3>
-      <p>Approved</p>
+      <h3>Approved</h3>
+      <div class="number" id="approvedBookings">-</div>
     </div>
     <div class="stat-card">
-      <h3 id="rejectedBookings">0</h3>
-      <p>Rejected</p>
+      <h3>Rejected</h3>
+      <div class="number" id="rejectedBookings">-</div>
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="filters">
-    <select id="statusFilter">
-      <option value="all">All Status</option>
-      <option value="pending">Pending</option>
-      <option value="approved">Approved</option>
-      <option value="rejected">Rejected</option>
-    </select>
+  <!-- Bookings Table -->
+  <div class="bookings-section">
+    <h2>Booking Requests</h2>
 
-    <select id="dateFilter">
-      <option value="all">All Dates</option>
-    </select>
+    <div class="filters">
+      <select id="statusFilter" onchange="loadBookings()">
+        <option value="">All Status</option>
+        <option value="pending" selected>Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
 
-    <select id="busFilter">
-      <option value="all">All Buses</option>
-    </select>
+    <div id="errorMessage" class="error" style="display: none;"></div>
+    <div id="loadingMessage" class="loading" style="display: none;">Loading bookings...</div>
 
-    <select id="tripTypeFilter">
-      <option value="all">All Trip Types</option>
-      <option value="individual">Individual</option>
-      <option value="class">Class Trip</option>
-      <option value="school">School Trip</option>
-      <option value="group">Group Booking</option>
-    </select>
+    <table id="bookingsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student</th>
+          <th>Email</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Vehicle</th>
+          <th>Seat</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="bookingsBody">
+        <!-- Bookings will be loaded here -->
+      </tbody>
+    </table>
   </div>
+</div>
 
-  <!-- Table -->
-  <table>
-    <thead>
-      <tr>
-        <th>Student ID</th>
-        <th>Email</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Direction</th>
-        <th>Route</th>
-        <th>Bus</th>
-        <th>Seat</th>
-        <th>Trip Type</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="bookingsBody">
-      <!-- rows injected here -->
-    </tbody>
-  </table>
+<!-- Rejection Modal -->
+<div id="rejectModal" class="modal">
+  <div class="modal-content">
+    <h3>Reject Booking</h3>
+    <p>Please provide a reason for rejection:</p>
+    <textarea id="rejectionReason" placeholder="E.g., Vehicle is fully booked..."></textarea>
+    <div class="modal-buttons">
+      <button class="cancel-btn" onclick="closeRejectModal()">Cancel</button>
+      <button class="confirm-reject" onclick="confirmReject()">Reject Booking</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  const STORAGE_KEY = "usiu_bookings";
+  const API_URL = 'http://localhost:8000/api';
+  let currentRejectBookingId = null;
 
-  const bookingsBody = document.getElementById("bookingsBody");
-  const refreshBtn = document.getElementById("refreshBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const exportBtn = document.getElementById("exportBtn");
-  const statusFilter = document.getElementById("statusFilter");
-  const dateFilter = document.getElementById("dateFilter");
-  const busFilter = document.getElementById("busFilter");
-  const tripTypeFilter = document.getElementById("tripTypeFilter");
+  // Check if user is logged in and is admin
+  function checkAuth() {
+    const token = localStorage.getItem('authToken');
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
-  // Check if admin is logged in
-  function checkAdminAuth() {
-    const session = localStorage.getItem("currentUser");
-    if (!session) {
-      alert("Please log in as admin");
-      window.location.href = "login.html";
+    if (!token || user.role !== 'admin') {
+      alert('Access denied. Admin login required.');
+      window.location.href = 'login.html';
       return false;
+    }
+    return true;
+  }
+
+  // Get auth token
+  function getAuthToken() {
+    return localStorage.getItem('authToken');
+  }
+
+  // Load bookings from API
+  async function loadBookings() {
+    if (!checkAuth()) return;
+
+    const status = document.getElementById('statusFilter').value;
+    const loadingEl = document.getElementById('loadingMessage');
+    const errorEl = document.getElementById('errorMessage');
+    const tbody = document.getElementById('bookingsBody');
+
+    loadingEl.style.display = 'block';
+    errorEl.style.display = 'none';
+    tbody.innerHTML = '';
+
+    try {
+      let url = `${API_URL}/admin/bookings`;
+      if (status) {
+        url += `?status=${status}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        displayBookings(result.data);
+        updateStats(result.meta);
+      } else {
+        showError('Failed to load bookings: ' + result.message);
+      }
+    } catch (error) {
+      showError('Error connecting to server: ' + error.message);
+    } finally {
+      loadingEl.style.display = 'none';
+    }
+  }
+
+  // Display bookings in table
+  function displayBookings(bookings) {
+    const tbody = document.getElementById('bookingsBody');
+    
+    if (bookings.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 30px;">No bookings found</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = bookings.map(booking => `
+      <tr>
+        <td>#${booking.id}</td>
+        <td>${booking.user.full_name}</td>
+        <td>${booking.user.email}</td>
+        <td>${booking.schedule.trip_date}</td>
+        <td>${booking.schedule.departure_time}</td>
+        <td>${booking.schedule.vehicle_number}</td>
+        <td>${booking.seat_number}</td>
+        <td>${booking.pickup_location || 'N/A'}</td>
+        <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
+        <td>
+          ${booking.status === 'pending' ? `
+            <button class="action-btn approve-btn" onclick="approveBooking(${booking.id})">Approve</button>
+            <button class="action-btn reject-btn" onclick="openRejectModal(${booking.id})">Reject</button>
+          ` : '-'}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Update statistics
+  function updateStats(meta) {
+    if (meta) {
+      document.getElementById('totalBookings').textContent = meta.total || 0;
+      document.getElementById('pendingBookings').textContent = meta.pending || 0;
+      document.getElementById('approvedBookings').textContent = meta.approved || 0;
+      document.getElementById('rejectedBookings').textContent = meta.rejected || 0;
+    }
+  }
+
+  // Approve booking
+  async function approveBooking(bookingId) {
+    if (!confirm('Are you sure you want to approve this booking?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/admin/bookings/${bookingId}/approve`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Booking approved successfully! Email sent to student.');
+        loadBookings();
+      } else {
+        alert('Failed to approve booking: ' + result.message);
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  }
+
+  // Open reject modal
+  function openRejectModal(bookingId) {
+    currentRejectBookingId = bookingId;
+    document.getElementById('rejectionReason').value = '';
+    document.getElementById('rejectModal').style.display = 'flex';
+  }
+
+  // Close reject modal
+  function closeRejectModal() {
+    currentRejectBookingId = null;
+    document.getElementById('rejectModal').style.display = 'none';
+  }
+
+  // Confirm rejection
+  async function confirmReject() {
+    const reason = document.getElementById('rejectionReason').value.trim();
+
+    if (!reason) {
+      alert('Please provide a rejection reason');
+      return;
     }
 
     try {
-      const user = JSON.parse(session);
-      if (user.role !== "admin") {
-        alert("Access denied. Admin only.");
-        window.location.href = "login.html";
-        return false;
-      }
-      return true;
-    } catch(e) {
-      alert("Invalid session");
-      window.location.href = "login.html";
-      return false;
-    }
-  }
-
-  function getAllBookings() {
-    const bookingsObj = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    const allBookings = [];
-    
-    // Flatten the bookings object into an array
-    for (const key in bookingsObj) {
-      const bookingsArray = bookingsObj[key];
-      bookingsArray.forEach(booking => {
-        allBookings.push({
-          ...booking,
-          bookingKey: key // Store the key for updating
-        });
-      });
-    }
-    
-    return allBookings;
-  }
-
-  function updateStatistics(bookings) {
-    const total = bookings.length;
-    const pending = bookings.filter(b => !b.status || b.status === 'pending').length;
-    const approved = bookings.filter(b => b.status === 'approved').length;
-    const rejected = bookings.filter(b => b.status === 'rejected').length;
-
-    document.getElementById('totalBookings').textContent = total;
-    document.getElementById('pendingBookings').textContent = pending;
-    document.getElementById('approvedBookings').textContent = approved;
-    document.getElementById('rejectedBookings').textContent = rejected;
-  }
-
-  function populateFilters(bookings) {
-    // Populate date filter
-    const dates = [...new Set(bookings.map(b => b.date).filter(Boolean))].sort();
-    dateFilter.innerHTML = '<option value="all">All Dates</option>';
-    
-    if (dates.length > 0) {
-      dates.forEach(date => {
-        const option = document.createElement('option');
-        option.value = date;
-        option.textContent = date;
-        dateFilter.appendChild(option);
-      });
-      console.log(`Populated ${dates.length} dates:`, dates);
-    } else {
-      console.log('No dates found in bookings');
-    }
-
-    // Populate bus filter
-    const buses = [...new Set(bookings.map(b => b.bus).filter(Boolean))].sort();
-    busFilter.innerHTML = '<option value="all">All Buses</option>';
-    
-    if (buses.length > 0) {
-      buses.forEach(bus => {
-        const option = document.createElement('option');
-        option.value = bus;
-        option.textContent = bus;
-        busFilter.appendChild(option);
-      });
-      console.log(`Populated ${buses.length} buses:`, buses);
-    } else {
-      console.log('No buses found in bookings');
-    }
-  }
-
-  function filterBookings(bookings) {
-    let filtered = [...bookings];
-
-    // Status filter
-    const statusVal = statusFilter.value;
-    if (statusVal !== 'all') {
-      filtered = filtered.filter(b => {
-        const bookingStatus = b.status || 'pending';
-        return bookingStatus === statusVal;
-      });
-    }
-
-    // Date filter
-    const dateVal = dateFilter.value;
-    if (dateVal !== 'all') {
-      filtered = filtered.filter(b => b.date === dateVal);
-    }
-
-    // Bus filter
-    const busVal = busFilter.value;
-    if (busVal !== 'all') {
-      filtered = filtered.filter(b => b.bus === busVal);
-    }
-
-    // Trip type filter
-    const tripTypeVal = tripTypeFilter.value;
-    if (tripTypeVal !== 'all') {
-      filtered = filtered.filter(b => b.tripType === tripTypeVal);
-    }
-
-    return filtered;
-  }
-
-  function loadBookings() {
-    const allBookings = getAllBookings();
-    
-    // Always populate filters first, even if no bookings
-    populateFilters(allBookings);
-    
-    if (allBookings.length === 0) {
-      bookingsBody.innerHTML = `<tr><td colspan="11">No bookings found</td></tr>`;
-      updateStatistics([]);
-      return;
-    }
-
-    // Update statistics
-    updateStatistics(allBookings);
-
-    // Apply filters
-    const filtered = filterBookings(allBookings);
-
-    // Clear table
-    bookingsBody.innerHTML = "";
-
-    if (filtered.length === 0) {
-      bookingsBody.innerHTML = `<tr><td colspan="11">No bookings match the selected filters</td></tr>`;
-      return;
-    }
-
-    // Sort by timestamp (newest first)
-    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    filtered.forEach(b => {
-      const status = b.status || 'pending';
-      const statusClass = status === 'approved' ? 'status-approved' : 
-                          status === 'rejected' ? 'status-rejected' : 'status-pending';
-      const statusText = status === 'approved' ? '✓ Approved' : 
-                         status === 'rejected' ? '✗ Rejected' : '⏳ Pending';
-
-      const tripTypeText = b.tripTypeText || 'N/A';
-      const groupIndicator = b.groupBookingId ? ' <span class="group-indicator" title="Part of group booking">👥</span>' : '';
-
-      const row = `
-        <tr>
-          <td>${b.studentId || "N/A"}</td>
-          <td style="font-size: 11px;">${b.email || "N/A"}</td>
-          <td>${b.date || "N/A"}</td>
-          <td>${b.time || "N/A"}</td>
-          <td>${formatDirection(b)}</td>
-          <td style="font-size: 11px;">${b.route || "N/A"}</td>
-          <td>${b.bus || "N/A"}</td>
-          <td><strong>${b.seat || "N/A"}</strong></td>
-          <td>
-            <span class="trip-type-badge">${tripTypeText}</span>
-            ${groupIndicator}
-          </td>
-          <td><span class="${statusClass}">${statusText}</span></td>
-          <td>
-            ${status === 'pending' ? `
-              <button class="action-btn approve-btn" onclick="approveBooking('${b.bookingKey}', '${b.seat}')">✓ Approve</button>
-              <button class="action-btn reject-btn" onclick="rejectBooking('${b.bookingKey}', '${b.seat}')">✗ Reject</button>
-            ` : status === 'approved' ? `
-              <button class="action-btn reject-btn" onclick="rejectBooking('${b.bookingKey}', '${b.seat}')">✗ Reject</button>
-            ` : `
-              <button class="action-btn approve-btn" onclick="approveBooking('${b.bookingKey}', '${b.seat}')">✓ Approve</button>
-            `}
-          </td>
-        </tr>
-      `;
-      bookingsBody.insertAdjacentHTML("beforeend", row);
-    });
-  }
-
-  function formatDirection(booking) {
-    if (booking.directionText) return booking.directionText;
-    if (booking.direction === "to") return "To School";
-    if (booking.direction === "from") return "From School";
-    if (booking.direction === "custom") {
-      return booking.customDirection || "Custom";
-    }
-    return booking.direction || "N/A";
-  }
-
-  function approveBooking(bookingKey, seat) {
-    if (!confirm(`Approve booking for seat ${seat}?`)) return;
-
-    const bookingsObj = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    
-    if (bookingsObj[bookingKey]) {
-      const bookingIndex = bookingsObj[bookingKey].findIndex(b => b.seat === seat);
-      if (bookingIndex !== -1) {
-        bookingsObj[bookingKey][bookingIndex].status = 'approved';
-        bookingsObj[bookingKey][bookingIndex].approvedBy = 'admin';
-        bookingsObj[bookingKey][bookingIndex].approvedAt = new Date().toISOString();
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingsObj));
-        
-        alert(`✅ Booking for seat ${seat} has been approved.\n\nNote: In production, an email notification will be sent to the student.`);
-        loadBookings();
-      }
-    }
-  }
-
-  function rejectBooking(bookingKey, seat) {
-    const reason = prompt(`Reject booking for seat ${seat}?\n\nPlease enter the reason for rejection:`);
-    if (!reason) return;
-
-    const bookingsObj = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    
-    if (bookingsObj[bookingKey]) {
-      const bookingIndex = bookingsObj[bookingKey].findIndex(b => b.seat === seat);
-      if (bookingIndex !== -1) {
-        bookingsObj[bookingKey][bookingIndex].status = 'rejected';
-        bookingsObj[bookingKey][bookingIndex].rejectedBy = 'admin';
-        bookingsObj[bookingKey][bookingIndex].rejectedAt = new Date().toISOString();
-        bookingsObj[bookingKey][bookingIndex].rejectionReason = reason;
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingsObj));
-        
-        alert(`❌ Booking for seat ${seat} has been rejected.\n\nReason: ${reason}\n\nNote: In production, an email notification will be sent to the student.`);
-        loadBookings();
-      }
-    }
-  }
-
-  function exportToCSV() {
-    const allBookings = getAllBookings();
-    
-    if (allBookings.length === 0) {
-      alert('No bookings to export');
-      return;
-    }
-
-    const filtered = filterBookings(allBookings);
-
-    const header = 'Student ID,Email,Date,Time,Direction,Custom Direction,Route,Bus,Seat,Trip Type,Status,Approved/Rejected By,Timestamp,Rejection Reason';
-    const lines = filtered.map(b => {
-      const status = b.status || 'pending';
-      const by = status === 'approved' ? (b.approvedBy || 'N/A') : status === 'rejected' ? (b.rejectedBy || 'N/A') : 'N/A';
-      const reason = b.rejectionReason || 'N/A';
-      const direction = formatDirection(b);
-      
-      return `${b.studentId || 'N/A'},${b.email || 'N/A'},${b.date || 'N/A'},${b.time || 'N/A'},${direction},${b.customDirection || 'N/A'},${b.route || 'N/A'},${b.bus || 'N/A'},${b.seat || 'N/A'},${b.tripTypeText || 'N/A'},${status},${by},${b.timestamp || 'N/A'},${reason}`;
-    });
-
-    const csv = [header, ...lines].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `admin_bookings_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  // Event listeners
-  refreshBtn.addEventListener("click", () => {
-    loadBookings();
-    alert("Booking data refreshed");
-  });
-
-  exportBtn.addEventListener("click", exportToCSV);
-
-  logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("currentUser");
-    window.location.href = "login.html";
-  });
-
-  // Test data generator
-  document.getElementById("testDataBtn").addEventListener("click", () => {
-    if (!confirm("Generate test bookings? This will add sample data to help you test the system.")) return;
-
-    const testBookings = {
-      "Karen__bus1__to__7:00 AM__2025-02-10": [
-        {
-          studentId: "USIU12345",
-          email: "john.doe@usiu.ac.ke",
-          route: "Karen",
-          direction: "to",
-          directionText: "To School",
-          time: "7:00 AM",
-          date: "2025-02-10",
-          seat: "A1",
-          bus: "Bus 1 (56 seats)",
-          tripType: "individual",
-          tripTypeText: "Individual Person",
-          confirmed: false,
-          status: "pending",
-          timestamp: new Date().toISOString()
+      const response = await fetch(`${API_URL}/admin/bookings/${currentRejectBookingId}/reject`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
         },
-        {
-          studentId: "USIU12346",
-          email: "jane.smith@usiu.ac.ke",
-          route: "Karen",
-          direction: "to",
-          directionText: "To School",
-          time: "7:00 AM",
-          date: "2025-02-10",
-          seat: "A2",
-          bus: "Bus 1 (56 seats)",
-          tripType: "individual",
-          tripTypeText: "Individual Person",
-          confirmed: false,
-          status: "approved",
-          timestamp: new Date().toISOString()
-        }
-      ],
-      "Langata__bus3__from__4:00 PM__2025-02-12": [
-        {
-          studentId: "USIU12347",
-          email: "mark.wilson@usiu.ac.ke",
-          route: "Langata",
-          direction: "from",
-          directionText: "From School",
-          time: "4:00 PM",
-          date: "2025-02-12",
-          seat: "B1",
-          bus: "Bus 3 (33 seats)",
-          tripType: "class",
-          tripTypeText: "Class Trip",
-          confirmed: false,
-          status: "pending",
-          timestamp: new Date().toISOString(),
-          groupBookingId: "GROUP_123456"
-        },
-        {
-          studentId: "USIU12347",
-          email: "mark.wilson@usiu.ac.ke",
-          route: "Langata",
-          direction: "from",
-          directionText: "From School",
-          time: "4:00 PM",
-          date: "2025-02-12",
-          seat: "B2",
-          bus: "Bus 3 (33 seats)",
-          tripType: "class",
-          tripTypeText: "Class Trip",
-          confirmed: false,
-          status: "pending",
-          timestamp: new Date().toISOString(),
-          groupBookingId: "GROUP_123456"
-        }
-      ],
-      "CBD__bus2__to__8:00 AM__2025-02-15": [
-        {
-          studentId: "USIU12348",
-          email: "alice.johnson@usiu.ac.ke",
-          route: "CBD",
-          direction: "to",
-          directionText: "To School",
-          time: "8:00 AM",
-          date: "2025-02-15",
-          seat: "C1",
-          bus: "Bus 2 (56 seats)",
-          tripType: "individual",
-          tripTypeText: "Individual Person",
-          confirmed: false,
-          status: "rejected",
-          rejectedBy: "admin",
-          rejectionReason: "Bus at full capacity",
-          timestamp: new Date().toISOString()
-        }
-      ]
-    };
+        body: JSON.stringify({
+          rejection_reason: reason
+        })
+      });
 
-    // Merge with existing bookings
-    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    const merged = { ...existing, ...testBookings };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      const result = await response.json();
 
-    alert("✅ Test data generated!\n\nAdded sample bookings for:\n- Bus 1 (Karen, Feb 10) - 2 bookings\n- Bus 3 (Langata, Feb 12) - 2 group bookings\n- Bus 2 (CBD, Feb 15) - 1 rejected booking");
-    loadBookings();
-  });
-
-  statusFilter.addEventListener('change', loadBookings);
-  dateFilter.addEventListener('change', loadBookings);
-  busFilter.addEventListener('change', loadBookings);
-  tripTypeFilter.addEventListener('change', loadBookings);
-
-  // Make functions globally accessible
-  window.approveBooking = approveBooking;
-  window.rejectBooking = rejectBooking;
-
-  // Initialize
-  if (checkAdminAuth()) {
-    loadBookings();
+      if (result.success) {
+        alert('Booking rejected. Email sent to student.');
+        closeRejectModal();
+        loadBookings();
+      } else {
+        alert('Failed to reject booking: ' + result.message);
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
   }
+
+  // Show error message
+  function showError(message) {
+    const errorEl = document.getElementById('errorMessage');
+    errorEl.textContent = message;
+    errorEl.style.display = 'block';
+  }
+
+  // Logout
+  function logout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
+  }
+
+  // Load bookings on page load
+  window.onload = function() {
+    if (checkAuth()) {
+      loadBookings();
+    }
+  };
 </script>
 
 </body>
